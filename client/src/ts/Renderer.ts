@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { PerspectiveCamera } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 class Renderer {
