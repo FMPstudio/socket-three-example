@@ -1,6 +1,8 @@
 import { io, Socket } from "socket.io-client";
 import { makeAutoObservable } from "mobx";
 import { createContext } from "react";
+import { InteractionStoreInstance } from "./InteractionStore";
+import { RendererInstance } from "./Renderer";
 
 export class SocketClient {
   // No good practice to use `any` as types, but ok here as example
@@ -10,8 +12,12 @@ export class SocketClient {
   constructor() {
     makeAutoObservable(this);
     this.client = io("http://localhost:7777");
-
     this.client.on("rotation", this.onReceiveRotation.bind(this));
+    this.client.on("interactables", this.onReceiveInteractables.bind(this));
+  }
+
+  initialize() {
+    this.sendInteractables();
   }
 
   get connected() {
@@ -20,6 +26,17 @@ export class SocketClient {
 
   get socketId() {
     return this.client.id;
+  }
+
+  sendInteractables() {
+    this.client.emit(
+      "interactables",
+      RendererInstance.getSceneRepresentation()
+    );
+  }
+
+  onReceiveInteractables(data: Array<any>) {
+    RendererInstance.updateScene(data);
   }
 
   sendCameraMatrix(cameraMatrixArray: Array<number>) {

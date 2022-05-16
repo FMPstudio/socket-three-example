@@ -1,13 +1,15 @@
+import { observer } from "mobx-react";
 import { useEffect, useRef, useContext } from "react";
-import { Renderer } from "./Renderer";
+import { Renderer, RendererContext } from "./Renderer";
 import { SocketClient, SocketClientContext } from "./SocketClient";
+import { UIMapper } from "./UIMapper";
 
-function App() {
+const App = () => {
   const canvasRef = useRef<HTMLCanvasElement>();
   const socketClient = useContext<SocketClient>(SocketClientContext);
+  const renderer = useContext<Renderer>(RendererContext);
 
   useEffect(() => {
-    const renderer = new Renderer();
     if (canvasRef.current) {
       renderer.setup(canvasRef.current);
       renderer.addMouseMoveListener(
@@ -42,9 +44,10 @@ function App() {
             </li>
           </ul>
         </div>
+        <UIMapper />
       </div>
     </div>
   );
-}
+};
 
 export default App;

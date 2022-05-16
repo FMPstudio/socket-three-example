@@ -3,6 +3,7 @@ import { Server as SocketServer, Socket } from "socket.io";
 enum SocketEvents {
   CONNECTION = "connection",
   ROTATION_MATRIX = "rotation",
+  INTERACTABLES = "interactables",
 }
 
 const socketServer = new SocketServer({
@@ -14,6 +15,10 @@ socketServer.on(SocketEvents.CONNECTION, (socket: Socket) => {
 
   socket.on(SocketEvents.ROTATION_MATRIX, (data) => {
     socket.broadcast.emit(SocketEvents.ROTATION_MATRIX, data);
+  });
+
+  socket.on(SocketEvents.INTERACTABLES, (data) => {
+    socket.broadcast.emit(SocketEvents.INTERACTABLES, data);
   });
 });
 

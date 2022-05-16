@@ -1,13 +1,20 @@
+import { makeAutoObservable } from "mobx";
+import { createContext } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { Interactable } from "./interactables/Interactable";
 
-class Renderer {
+export class Renderer {
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.PerspectiveCamera;
-  private scene: THREE.Scene;
+  private _scene: THREE.Scene;
   private controls: OrbitControls;
 
   private mouseMoveCallbacks: Array<Function> = [];
+
+  constructor() {
+    makeAutoObservable(this);
+  }
 
   setup(canvas: HTMLCanvasElement) {
     if (canvas === undefined) return;
@@ -16,7 +23,7 @@ class Renderer {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor(0x333333);
 
-    this.scene = new THREE.Scene();
+    this._scene = new THREE.Scene();
 
     const fov = 40;
     const aspect = window.innerWidth / window.innerHeight;
@@ -27,12 +34,6 @@ class Renderer {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-    const interactableObject = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(),
-      new THREE.MeshNormalMaterial()
-    );
-    this.scene.add(interactableObject);
-
     this.renderer.domElement.addEventListener(
       "pointermove",
       this.onMouseMove.bind(this)
@@ -42,7 +43,7 @@ class Renderer {
   }
 
   render() {
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this._scene, this.camera);
   }
 
   dispose() {
@@ -67,12 +68,35 @@ class Renderer {
     return this.camera.matrix;
   }
 
+  addObjectToScene(o: THREE.Object3D) {
+    this._scene.add(o);
+  }
+
   updateMatrix(matrixElements: Array<number>) {
     this.controls.enabled = false;
     this.camera.matrixAutoUpdate = false;
     this.camera.matrixWorld.fromArray(matrixElements);
     this.camera.updateMatrixWorld();
   }
+
+  get scene(): THREE.Scene {
+    return this._scene;
+  }
+
+  // Update the scene with a scene json representation
+  updateScene(json: any) {
+    const loader = new THREE.ObjectLoader();
+    this._scene.clear();
+    loader.parse(json, (obj: any) => {
+      this._scene.add(obj);
+    });
+  }
+
+  // Get the scenes JSON representation
+  getSceneRepresentation() {
+    return this._scene.toJSON();
+  }
 }
 
-export { Renderer };
+export const RendererInstance = new Renderer();
+export const RendererContext = createContext(RendererInstance);
