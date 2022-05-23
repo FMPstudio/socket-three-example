@@ -8,7 +8,7 @@ import {
   Interactable,
 } from "./interactables/Interactable";
 import { InteractionStore, InteractionStoreContext } from "./InteractionStore";
-import { NumberInput, Slider, Button } from "./ui";
+import { NumberInput, Slider, Button, ColorPicker, CheckBox, DropDownMenu} from "./ui";
 import "./UIMapper.sass";
 
 const SwitchOnType = ({ changeable }: { changeable: ChangeableProperty }) => {
@@ -33,6 +33,15 @@ const SwitchOnType = ({ changeable }: { changeable: ChangeableProperty }) => {
 
     case ChangeableTypes.BUTTON:
       return <Button text={label} onClick={() => changeable.onTrigger!()} />;
+
+    case ChangeableTypes.COLOR_PICKER:
+      return <ColorPicker value={'#666666'} onChange = {(v:string)=> changeable.onChange!(v)}/>;
+    
+    case ChangeableTypes.CHECKBOX:
+      return <CheckBox checked={false} onChange = {(v:boolean)=> changeable.onChange!(v) } name={label} />
+
+    case ChangeableTypes.DROPDOWNMENU:
+      return <DropDownMenu name = {label} options = {changeable.options}/>
 
     default:
       return <></>;
